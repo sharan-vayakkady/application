@@ -1,0 +1,35 @@
+name: Upload to S3 on New File
+
+on:
+  push:
+    paths:
+      - '**'
+    tags-ignore:
+      - '*'
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+          
+      - name: List new files
+        id: list_files
+        run: |
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E "*.html"
+          echo "::set-output name=files::$(grep -E "*.html" | xargs)"
+      
+      - name: Upload files to S3
+        run: |
+          for file in ${{ steps.list_files.outputs.files }}; do
+            aws s3 cp $file s3://ssv-github/
+          done
