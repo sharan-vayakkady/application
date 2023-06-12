@@ -1,7 +1,14 @@
 #!/bin/bash
 
-# Check out the main branch
-git checkout staging
+git config user.name sharan
+git config user.email sharan.vayakkady@gmail.com
+git config pull.rebase false
+git fetch --all
+git branch
+git checkout main 
+git pull origin main
+git checkout -b staging origin/staging
+git pull origin staging
 
 # Merge staging into main and capture the output
 merge_output=$(git merge main)
