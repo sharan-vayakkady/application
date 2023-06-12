@@ -8,26 +8,26 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-    
+
     - name: Configure AWS credentials
-        env:
-          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
-        run: |
-          export AWS_WEB_IDENTITY_TOKEN_FILE=$(mktemp)
-          aws sts assume-role-with-web-identity \
-            --role-arn "$AWS_ROLE_ARN" \
-            --role-session-name GitHubActionsSession \
-            --web-identity-token file://$AWS_WEB_IDENTITY_TOKEN_FILE \
-            --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
-            --output text > aws_credentials.txt
-          source aws_credentials.txt
-          aws configure set region us-east-1
-          aws sts get-caller-identity
-    
+      env:
+        AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+      run: |
+        export AWS_WEB_IDENTITY_TOKEN_FILE=$(mktemp)
+        aws sts assume-role-with-web-identity \
+          --role-arn "$AWS_ROLE_ARN" \
+          --role-session-name GitHubActionsSession \
+          --web-identity-token file://$AWS_WEB_IDENTITY_TOKEN_FILE \
+          --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
+          --output text > aws_credentials.txt
+        source aws_credentials.txt
+        aws configure set region us-east-1
+        aws sts get-caller-identity
+
     - name: Upload files to S3
       run: |
         aws s3 sync . s3://ssv-github/ --delete
