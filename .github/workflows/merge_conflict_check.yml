@@ -1,0 +1,28 @@
+name: Merge Conflict Check
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  merge_conflict_check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Run merge conflict check
+        run: |
+          chmod +x merge_conflict_check.sh
+          ./merge_conflict_check.sh
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+      
+      - name: Send result to Slack
+        if: ${{ failure() }}
+        uses: rtCamp/action-slack-notify@v2
+        with:
+          slack_webhook_url: ${{ env.SLACK_WEBHOOK_URL }}
+          slack_message: "A merge conflict was found between main and staging branches."
