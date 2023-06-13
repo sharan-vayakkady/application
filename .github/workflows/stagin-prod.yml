@@ -12,8 +12,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-     id-token: write
-     contents: read
+      contents: read
+      id-token: write
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -26,9 +26,9 @@ jobs:
         role-session-name: MySessionName
 
     - name: Upload files to S3 staging bucket
-        if: contains(github.ref, 'refs/heads/rc_')
-        run: aws s3 sync . s3://ssv-staging/ --delete
+      if: contains(github.ref, 'refs/heads/rc_')
+      run: aws s3 sync . s3://ssv-staging/ --delete
         
     - name: Upload files to S3 production bucket
-        if: github.event_name == 'release'
-        run: aws s3 sync . s3://ssv-production/
+      if: github.event_name == 'release'
+      run: aws s3 sync . s3://ssv-production/ --delete
