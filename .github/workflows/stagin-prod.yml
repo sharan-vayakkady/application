@@ -26,7 +26,7 @@ jobs:
         role-session-name: MySessionName
 
     - name: Upload files to S3 staging bucket
-        if: startsWith(github.ref, 'refs/heads/rc_')
+        if: contains(github.ref, 'refs/heads/rc_')
         run: aws s3 sync . s3://ssv-staging/ --delete
         
     - name: Upload files to S3 production bucket
