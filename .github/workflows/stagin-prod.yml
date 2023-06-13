@@ -1,0 +1,34 @@
+name: staging-prod
+
+on:
+  push:
+    branches:
+      - 'rc_*'
+  release:
+    types:
+      - published
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-region: us-east-1
+        role-to-assume: arn:aws:iam::476057914212:role/github-action-role
+        role-session-name: MySessionName
+
+    - name: Upload files to S3 staging bucket
+      if: contains(github.ref, 'refs/heads/rc_')
+      run: aws s3 sync . s3://ssv-staging/ --delete
+        
+    - name: Upload files to S3 production bucket
+      if: github.event_name == 'release'
+      run: aws s3 sync . s3://ssv-production/ --delete
