@@ -1,4 +1,4 @@
-name: S3 Upload
+name: staging-prod
 
 on:
   push:
